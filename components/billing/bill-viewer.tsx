@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Printer } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import Image from "next/image";
 
 interface BillViewerProps {
   bill: any;
@@ -13,42 +14,21 @@ interface BillViewerProps {
 export function BillViewer({ bill }: BillViewerProps) {
   const [isPrinting, setIsPrinting] = useState(false);
 
-  const totalAmount = bill.items.reduce(
-    (sum: number, item: any) => sum + item.totalValue,
-    0
-  );
-
-  const calculatePaymentAmount = (amount: number, paymentType: string) => {
-    if (paymentType === "Card" && amount >= 20000) {
-      return amount + (amount * 3) / 100;
-    }
-    return amount;
-  };
-
+  /* ---------- PDF DOWNLOAD ---------- */
   const handleDownloadPDF = async () => {
     setIsPrinting(true);
     try {
       const element = document.getElementById(`bill-${bill.id}`);
-      if (!element) {
-        alert("Bill not found. Please try printing instead.");
-        setIsPrinting(false);
-        return;
-      }
+      if (!element) return;
 
       const canvas = await html2canvas(element, {
         scale: 2,
-        useCORS: true,
-        allowTaint: true,
         backgroundColor: "#ffffff",
-        logging: false,
+        useCORS: true,
       });
 
       const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
+      const pdf = new jsPDF("p", "mm", "a4");
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const imgWidth = pageWidth - 20;
@@ -56,35 +36,40 @@ export function BillViewer({ bill }: BillViewerProps) {
 
       pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
       pdf.save(`${bill.billNumber}.pdf`);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Error generating PDF. Please use the Print option instead.");
-      handlePrint();
+    } catch (err) {
+      console.error(err);
+      alert("PDF generation failed. Please use Print.");
     } finally {
       setIsPrinting(false);
     }
   };
 
+  /* ---------- PRINT ---------- */
   const handlePrint = () => {
     const element = document.getElementById(`bill-${bill.id}`);
     if (!element) return;
 
-    const printWindow = window.open("", "", "width=800,height=600");
+    const printWindow = window.open("", "", "width=900,height=650");
     if (!printWindow) return;
 
-    printWindow.document.write("<html><head>");
-    printWindow.document.write(
-      '<link rel="stylesheet" href="' + window.location.href + '">'
-    );
-    printWindow.document.write("</head><body>");
-    printWindow.document.write(element.innerHTML);
-    printWindow.document.write("</body></html>");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Invoice</title>
+        </head>
+        <body>
+          ${element.innerHTML}
+        </body>
+      </html>
+    `);
+
     printWindow.document.close();
     printWindow.print();
   };
 
   return (
     <div className="space-y-4">
+      {/* ===== ACTION BUTTONS (PRESERVED) ===== */}
       <div className="flex justify-end gap-2">
         <Button
           variant="outline"
@@ -96,6 +81,7 @@ export function BillViewer({ bill }: BillViewerProps) {
           <Download className="h-4 w-4" />
           Download PDF
         </Button>
+
         <Button
           variant="outline"
           size="sm"
@@ -107,119 +93,91 @@ export function BillViewer({ bill }: BillViewerProps) {
         </Button>
       </div>
 
+      {/* ===== INVOICE CONTENT (EXACT FORMAT) ===== */}
       <div
         id={`bill-${bill.id}`}
-        className="bg-white p-8 rounded-lg border border-border text-black"
+        className="bg-white text-black"
+        style={{
+          width: "210mm",
+          minHeight: "297mm",
+          padding: "20mm",
+          fontFamily: "Arial, sans-serif",
+        }}
       >
-        {/* Header */}
-        <div className="mb-8 border-b pb-4">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h1 className="text-3xl font-bold">Lakshika Jewellers</h1>
-              <p className="text-gray-600">Digital Bill</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-semibold">Bill No: {bill.billNumber}</p>
-              <p className="text-sm">
-                Date: {new Date(bill.billDate).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Customer Info */}
-        <div className="grid grid-cols-2 gap-8 mb-8">
+        {/* HEADER */}
+        <div className="flex justify-between items-start mb-12">
+          {/* LEFT */}
           <div>
-            <h3 className="font-bold mb-2">Customer Details</h3>
-            <p className="text-sm">
-              <strong>Name:</strong> {bill.customer.name}
+            <Image
+              src="/logo.png"
+              alt="Lakshika Jewellers"
+              width={130}
+              height={130}
+              priority
+            />
+            <p className="font-bold text-lg mt-2">LAKSHIKA JEWELLERS</p>
+            <p className="text-xs italic">Where Luxury Meets Style</p>
+            <p className="text-xs mt-2">
+              No. 220B, Galle Road, Walana, Panadura.
             </p>
-            <p className="text-sm">
-              <strong>Address:</strong> {bill.customer.address}
-            </p>
-            <p className="text-sm">
-              <strong>Phone:</strong> {bill.customer.phone}
+            <p className="text-xs">
+              Tel: 076-4357920, 076-6244372, 076-1576536
             </p>
           </div>
-          <div />
+
+          {/* RIGHT */}
+          <div className="text-right">
+            <p className="text-xl font-semibold mb-4">CUSTOMER INVOICE</p>
+            <p className="text-sm">Invoice no : {bill.billNumber}</p>
+            <p className="text-sm">
+              Date : {new Date(bill.billDate).toLocaleDateString()}
+            </p>
+          </div>
         </div>
 
-        {/* Items Table */}
+        {/* CUSTOMER DETAILS */}
         <div className="mb-8">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="border-b-2 border-gray-800">
-                <th className="text-left py-2 px-2">Description</th>
-                <th className="text-left py-2 px-2">Metal</th>
-                <th className="text-left py-2 px-2">Karat</th>
-                <th className="text-center py-2 px-2">Weight (g)</th>
-                <th className="text-center py-2 px-2">Size</th>
-                <th className="text-right py-2 px-2">Price (LKR)</th>
+          <p className="text-sm font-semibold mb-3">CUSTOMER DETAILS</p>
+          <p className="text-sm">{bill.customer.name}</p>
+          <p className="text-sm">{bill.customer.phone}</p>
+          {bill.deliveryDate && (
+            <p className="text-sm">Delivery by: {bill.deliveryDate}</p>
+          )}
+        </div>
+
+        {/* TABLE */}
+        <table
+          className="w-full text-sm border-collapse"
+          style={{ borderTop: "1px solid #000" }}
+        >
+          <thead>
+            <tr className="border-b">
+              <th className="text-left py-2">DESCRIPTION</th>
+              <th className="text-left py-2">Metal Type</th>
+              <th className="text-left py-2">KARATAGE</th>
+              <th className="text-left py-2">Target Weight</th>
+              <th className="text-right py-2">PRICE (LKR)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bill.items.map((item: any, i: number) => (
+              <tr key={i} className="border-b">
+                <td className="py-3">{item.description}</td>
+                <td>{item.metalType}</td>
+                <td>{item.karatage}</td>
+                <td>{item.targetWeight} g</td>
+                <td className="text-right">
+                  LKR {item.totalValue.toLocaleString()}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {bill.items.map((item: any, index: number) => (
-                <tr key={index} className="border-b">
-                  <td className="py-2 px-2">{item.description}</td>
-                  <td className="py-2 px-2">{item.metalType}</td>
-                  <td className="py-2 px-2">{item.karatage}</td>
-                  <td className="py-2 px-2 text-center">{item.weight}</td>
-                  <td className="py-2 px-2 text-center">{item.sizeValue}</td>
-                  <td className="py-2 px-2 text-right">
-                    (LKR) {item.totalValue.toLocaleString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
 
-        {/* Summary */}
-        <div className="flex justify-end mb-8">
-          <div className="w-64 space-y-2">
-            <div className="flex justify-between py-1">
-              <span>Subtotal:</span>
-              <span>(LKR) {totalAmount.toLocaleString()}</span>
-            </div>
-            {bill.oldGoldValue > 0 && (
-              <div className="flex justify-between py-1 text-green-600">
-                <span>Old Gold Value:</span>
-                <span>-(LKR) {bill.oldGoldValue.toLocaleString()}</span>
-              </div>
-            )}
-            {bill.items[0]?.paymentType === "Card" && totalAmount >= 20000 && (
-              <div className="flex justify-between py-1 text-orange-600">
-                <span>Bank Charge (3%):</span>
-                <span>(LKR) {(totalAmount * 0.03).toLocaleString()}</span>
-              </div>
-            )}
-            <div className="flex justify-between py-2 border-t-2 border-gray-800 font-bold">
-              <span>Balance Due:</span>
-              <span>
-                (LKR) {(
-                  calculatePaymentAmount(totalAmount, bill.items[0]?.paymentType || "Cash") -
-                  bill.oldGoldValue
-                ).toLocaleString()}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="border-t pt-4 space-y-4">
-          <div className="grid grid-cols-3 gap-8 text-sm">
-            <div className="space-y-8 pt-8">
-              <div className="text-center">
-                <p className="border-t pt-2">Customer Signature</p>
-              </div>
-            </div>
-            <div />
-            <div className="space-y-8 pt-8">
-              <div className="text-center">
-                <p className="border-t pt-2">Authorized By</p>
-              </div>
-            </div>
-          </div>
+        {/* SIGNATURE */}
+        <div className="mt-20">
+          <p className="text-sm font-semibold mb-8">CUSTOMER SIGNATURE</p>
+          <div className="border-t w-64"></div>
         </div>
       </div>
     </div>
