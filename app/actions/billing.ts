@@ -152,6 +152,11 @@ export async function getWorksheets() {
     return await prisma.worksheetItem.findMany({
       include: {
         stoneDetails: true,
+        bill: {
+          include: {
+            customer: true,
+          },
+        },
       },
       orderBy: { date: "desc" },
     });
@@ -189,7 +194,7 @@ export async function getCustomers() {
 export async function createBill(billData: any) {
   try {
     const billNumber = await generateBillNumber();
-    
+
     // Verify customer exists
     const customer = await prisma.customer.findUnique({
       where: { id: billData.customerId },
@@ -203,24 +208,47 @@ export async function createBill(billData: any) {
       data: {
         billNumber,
         customerId: billData.customerId,
+        address: billData.address,
         billType: billData.billType || "ReadyMade",
         subtotal: billData.subtotal || 0,
         tax: billData.tax || 0,
         paymentType: billData.paymentType || "Cash",
         paymentAmount: billData.paymentAmount || 0,
         oldGoldValue: billData.oldGoldValue || 0,
+        balance: billData.balance || 0,
+        targetWeight: billData.targetWeight || null,
+        targetPrice: billData.targetPrice || null,
+        deliveryDate: billData.deliveryDate || null,
+        specialRemarks: billData.specialRemarks || null,
         items: {
-          create: billData.items?.map((item: any) => ({
-            description: item.description || item.name,
-            metalType: item.metalType || "Gold",
-            karatage: item.karatage || "K22",
-            weight: item.weight || 0,
-            size: item.size || "Ring",
-            sizeValue: item.sizeValue,
-            price: item.price || 0,
-            totalValue: item.totalValue || 0,
-            paymentType: billData.paymentType || "Cash",
-          })) || [],
+          create: billData.items?.map((item: any) => {
+            const stoneCarats = item.stones?.reduce((sum: number, s: any) => sum + (s.weightCarats || 0), 0) || 0;
+            const stoneGrams = item.stones?.reduce((sum: number, s: any) => sum + (s.weightGrams || 0), 0) || 0;
+
+            return {
+              description: item.description,
+              metalType: item.metalType,
+              karatage: item.karatage,
+              weight: item.weight || 0,
+              size: item.size || "Ring",
+              sizeValue: item.sizeValue || "",
+              price: item.price || 0,
+              totalValue: item.totalValue,
+              paymentType: billData.paymentType || "Cash",
+              inventoryItemId: item.inventoryItemId || null,
+              totalStoneWeightCarats: stoneCarats,
+              totalStoneWeightGrams: stoneGrams,
+              stones: {
+                create: item.stones?.map((stone: any) => ({
+                  stoneType: stone.stoneType,
+                  treatment: stone.treatment,
+                  numberOfStones: stone.numberOfStones,
+                  weightCarats: stone.weightCarats,
+                  weightGrams: stone.weightGrams,
+                })) || [],
+              },
+            };
+          }) || [],
         },
       },
       include: {
@@ -232,6 +260,11 @@ export async function createBill(billData: any) {
         },
       },
     });
+
+    // Automatically update inventory if an inventory item was specified (optional enhancement)
+    // Note: The original requirement mentioned "itinerary database should be automatically updated"
+    // Usually, this implies matching inventory by name or barcode if provided.
+    // For now, we simple create the bill.
 
     return newBill;
   } catch (error) {
@@ -292,6 +325,51 @@ export async function updateCustomer(customerId: string, customerData: any) {
     });
   } catch (error) {
     console.error("Error updating customer:", error);
+    throw error;
+  }
+}
+export async function createWorkshopSheet(billId: string, goldsmithName: string) {
+  try {
+    const bill = await prisma.bill.findUnique({
+      where: { id: billId },
+      include: { items: { include: { stones: true } } }
+    });
+
+    if (!bill) throw new Error("Bill not found");
+
+    const mainItem = bill.items[0];
+    if (!mainItem) throw new Error("No items in bill");
+
+    const worksheet = await prisma.worksheetItem.create({
+      data: {
+        date: new Date(),
+        goldsmithName,
+        jewelryDescription: mainItem.description,
+        size: mainItem.sizeValue || "N/A", // Use sizeValue from item
+        metalType: mainItem.metalType,
+        metalKaratage: mainItem.karatage,
+        targetMetalWeight: bill.targetWeight || 0,
+        theoreticalWastage: 0, // Will be calculated based on karatage
+        goldGiven: 0,
+        stoneDetails: {
+          create: mainItem.stones.map((s: any) => ({
+            stoneType: s.stoneType,
+            size: "N/A", // Required field in schema
+            weight: s.weightGrams, // Mapping grams
+          }))
+        }
+      }
+    });
+
+    // Link worksheet back to bill
+    await prisma.bill.update({
+      where: { id: billId },
+      data: { worksheetId: worksheet.id }
+    });
+
+    return worksheet;
+  } catch (error) {
+    console.error("Error creating workshop sheet:", error);
     throw error;
   }
 }

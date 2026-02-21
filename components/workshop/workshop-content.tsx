@@ -34,6 +34,12 @@ interface Worksheet {
   actualWastage?: number;
   wastageStatus?: string;
   stoneDetails: any[];
+  bill?: {
+    billNumber: string;
+    customer: {
+      name: string;
+    };
+  };
 }
 
 const wastageChartData = [
@@ -179,6 +185,9 @@ export function WorkshopContent() {
                           Goldsmith
                         </th>
                         <th className="text-left py-3 px-4 font-medium">
+                          Customer
+                        </th>
+                        <th className="text-left py-3 px-4 font-medium">
                           Jewelry
                         </th>
                         <th className="text-left py-3 px-4 font-medium">
@@ -206,6 +215,9 @@ export function WorkshopContent() {
                           </td>
                           <td className="py-3 px-4 font-medium">
                             {ws.goldsmithName}
+                          </td>
+                          <td className="py-3 px-4">
+                            {ws.bill?.customer.name || "N/A"}
                           </td>
                           <td className="py-3 px-4">
                             {ws.jewelryDescription}

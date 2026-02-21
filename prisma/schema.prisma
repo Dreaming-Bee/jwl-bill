@@ -97,7 +97,9 @@ model Bill {
   
   // Ready-made specific
   oldGoldValue    Float    @default(0)
+  balance         Float    @default(0)
   customerSignature String?
+  address         String?  // Optional override or for non-registered customers
   
   // Custom order specific
   designImage     String?
@@ -108,7 +110,8 @@ model Bill {
   finalPrice      Float?
   
   items           BillItem[]
-  worksheetId     String?
+  worksheet       WorksheetItem? @relation(fields: [worksheetId], references: [id])
+  worksheetId     String? @unique
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -130,6 +133,10 @@ model BillItem {
   
   paymentType     PaymentType
   
+  inventoryItemId String?
+  totalStoneWeightCarats Float @default(0)
+  totalStoneWeightGrams  Float @default(0)
+
   stones          Stone[]
   
   createdAt       DateTime @default(now())
@@ -144,8 +151,8 @@ model Stone {
   stoneType       String
   treatment       String?
   numberOfStones  Int
-  weightPerStone  Float
-  totalWeight     Float
+  weightCarats    Float    @default(0) // Weight in carats
+  weightGrams     Float    @default(0) // Weight in grams
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -169,7 +176,7 @@ model InventoryItem {
 
 model WorksheetItem {
   id              String   @id @default(cuid())
-  billId          String?
+  bill            Bill?
   
   date            DateTime @default(now())
   goldsmithName   String

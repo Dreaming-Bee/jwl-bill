@@ -168,8 +168,8 @@ async function main() {
                   stoneType: "Diamond",
                   treatment: "Natural",
                   numberOfStones: 1,
-                  weightPerStone: 0.5,
-                  totalWeight: 0.5,
+                  weightCarats: 0.5,
+                  weightGrams: 0.1,
                 },
               ],
             },
@@ -219,15 +219,15 @@ async function main() {
                   stoneType: "Blue Sapphire",
                   treatment: "Unheated",
                   numberOfStones: 1,
-                  weightPerStone: 1.2,
-                  totalWeight: 1.2,
+                  weightCarats: 1.2,
+                  weightGrams: 0.24,
                 },
                 {
                   stoneType: "Diamond",
                   treatment: "Lab",
                   numberOfStones: 6,
-                  weightPerStone: 0.15,
-                  totalWeight: 0.9,
+                  weightCarats: 0.9,
+                  weightGrams: 0.18,
                 },
               ],
             },
@@ -262,10 +262,9 @@ async function main() {
     },
   });
 
-  // Create a worksheet
-  await prisma.worksheetItem.create({
+  // Create a worksheet and link it to bill2
+  const worksheet = await prisma.worksheetItem.create({
     data: {
-      billId: bill2.id,
       goldsmithName: "Harsha",
       jewelryDescription: "Custom Gold Ring with Sapphire",
       size: "17",
@@ -297,6 +296,12 @@ async function main() {
         ],
       },
     },
+  });
+
+  // Link worksheet to bill
+  await prisma.bill.update({
+    where: { id: bill2.id },
+    data: { worksheetId: worksheet.id }
   });
 
   console.log("✅ Seed data created successfully!");
