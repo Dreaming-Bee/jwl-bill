@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createBill } from "@/app/actions/billing";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,7 +13,7 @@ import {
     SelectTrigger,
     SelectValue
 } from "@/components/ui/select";
-import { Plus, Trash2, Camera, WorksheetIcon } from "lucide-react";
+import { Plus, Trash2, Camera, Info } from "lucide-react";
 
 const METAL_TYPES = ["Gold", "WhiteGold", "RoseGold", "Silver"];
 const KARATAGES = ["K22", "K21", "K18", "K16", "K14", "K9", "Silver925"];
@@ -29,7 +29,11 @@ export function CustomOrderForm({ customers, onSuccess, onCancel }: CustomOrderF
     const [description, setDescription] = useState("");
     const [metalType, setMetalType] = useState("Gold");
     const [karatage, setKaratage] = useState("K22");
-    const [targetWeight, setTargetWeight] = useState(0);
+
+    // Split target weight into metal and stone estimates
+    const [estimatedMetalWeight, setEstimatedMetalWeight] = useState(0);
+    const [estimatedStoneWeight, setEstimatedStoneWeight] = useState(0);
+
     const [targetPrice, setTargetPrice] = useState(0);
     const [deliveryDate, setDeliveryDate] = useState("");
     const [size, setSize] = useState("Ring");
@@ -37,11 +41,13 @@ export function CustomOrderForm({ customers, onSuccess, onCancel }: CustomOrderF
     const [remarks, setRemarks] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const targetWeight = estimatedMetalWeight + estimatedStoneWeight;
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!selectedCustomerId || !description || targetWeight <= 0) {
-            alert("Please fill in all required fields (Customer, Description, Target Weight)");
+        if (!selectedCustomerId || !description || estimatedMetalWeight <= 0) {
+            alert("Please fill in all required fields (Customer, Description, Estimated Metal Weight)");
             return;
         }
 
@@ -79,7 +85,13 @@ export function CustomOrderForm({ customers, onSuccess, onCancel }: CustomOrderF
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <Card className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Initial Custom Order Details</h3>
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-semibold">Initial Custom Order Details</h3>
+                    <div className="text-sm font-medium bg-primary/10 text-primary px-3 py-1 rounded-full">
+                        Target Weight: {targetWeight.toFixed(3)}g
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label>Customer (Required)</Label>
@@ -125,12 +137,22 @@ export function CustomOrderForm({ customers, onSuccess, onCancel }: CustomOrderF
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Target Weight (g) (Required)</Label>
+                        <Label>Estimated Metal Weight (g) (Required)</Label>
                         <Input
                             type="number"
                             step="0.001"
-                            value={targetWeight}
-                            onChange={e => setTargetWeight(parseFloat(e.target.value) || 0)}
+                            value={estimatedMetalWeight}
+                            onChange={e => setEstimatedMetalWeight(parseFloat(e.target.value) || 0)}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Estimated Stone Weight (g)</Label>
+                        <Input
+                            type="number"
+                            step="0.001"
+                            value={estimatedStoneWeight}
+                            onChange={e => setEstimatedStoneWeight(parseFloat(e.target.value) || 0)}
                         />
                     </div>
 
@@ -173,8 +195,8 @@ export function CustomOrderForm({ customers, onSuccess, onCancel }: CustomOrderF
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label>Special Remarks (Design details, stone requests, etc.)</Label>
+                    <div className="space-y-2 md:col-span-2">
+                        <Label>Special Remarks (Mat Polish, Engraving, Design details, etc.)</Label>
                         <Input
                             value={remarks}
                             onChange={e => setRemarks(e.target.value)}
@@ -183,10 +205,15 @@ export function CustomOrderForm({ customers, onSuccess, onCancel }: CustomOrderF
                     </div>
                 </div>
 
-                <div className="mt-6 flex justify-between items-center bg-blue-50 p-4 rounded-lg border border-blue-100">
-                    <div className="flex items-center gap-2 text-blue-700">
-                        <Camera className="h-5 w-5" />
-                        <span className="text-sm font-medium">Design images can be uploaded after creation.</span>
+                <div className="mt-6 flex items-start gap-3 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div className="text-sm text-blue-700">
+                        <p className="font-semibold">Workflow Information:</p>
+                        <ul className="list-disc ml-4 mt-1 space-y-1">
+                            <li>Target weight is calculated as the sum of metal and stone estimates.</li>
+                            <li>A workshop sheet will be generated automatically with these details.</li>
+                            <li>Design images can be uploaded after the order is created.</li>
+                        </ul>
                     </div>
                 </div>
 

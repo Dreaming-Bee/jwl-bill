@@ -15,6 +15,7 @@ import {
   Sun,
   Settings,
   Users,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -26,13 +27,23 @@ const MENU_ITEMS = [
     icon: BarChart3,
   },
   {
-    label: "Ready-Made Billing",
+    label: "Ready-Made",
     href: "/billing/ready-made",
     icon: FileText,
   },
   {
-    label: "Custom Orders",
+    label: "Custom Initial",
     href: "/billing/custom",
+    icon: FileText,
+  },
+  {
+    label: "Finalize Custom",
+    href: "/billing/custom/completed",
+    icon: CheckCircle,
+  },
+  {
+    label: "Repair & Old Gold",
+    href: "/billing/receipts",
     icon: FileText,
   },
   {

@@ -12,19 +12,11 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import { getAllBills, getInventoryItems, getWorksheets } from "@/app/actions/billing";
-
-const chartData = [
-  { name: "Jan", revenue: 4000, bills: 24 },
-  { name: "Feb", revenue: 3000, bills: 21 },
-  { name: "Mar", revenue: 2000, bills: 29 },
-  { name: "Apr", revenue: 2780, bills: 39 },
-  { name: "May", revenue: 1890, bills: 23 },
-  { name: "Jun", revenue: 2390, bills: 34 },
-];
+import { MetalPriceWidget } from "./metal-price-widget";
+import { AlertCircle, Clock, ShoppingBag, Info } from "lucide-react";
 
 export function DashboardContent() {
   const [stats, setStats] = useState({
@@ -32,6 +24,7 @@ export function DashboardContent() {
     totalInventory: 0,
     worksheetsCount: 0,
     totalRevenue: 0,
+    pendingCustom: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -45,20 +38,18 @@ export function DashboardContent() {
         ]);
 
         const totalRevenue = bills.reduce((sum, bill) => {
-          const billTotal = bill.items.reduce(
-            (itemSum, item) => itemSum + item.totalValue,
-            0
-          );
-          return sum + billTotal;
+          return sum + (bill.paymentAmount || 0);
         }, 0);
 
         const inventoryCount = inventory.reduce((sum, item) => sum + item.quantity, 0);
+        const pendingCustom = bills.filter(b => b.billType === "CustomInitial").length;
 
         setStats({
           totalBills: bills.length,
           totalInventory: inventoryCount,
           worksheetsCount: worksheets.length,
           totalRevenue,
+          pendingCustom,
         });
       } catch (error) {
         console.error("Error loading stats:", error);
@@ -72,123 +63,148 @@ export function DashboardContent() {
 
   return (
     <div className="p-8 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome to Lakshika Jewellers Digital Billing System
-        </p>
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Lakshika Jewellers Digital Billing System
+          </p>
+        </div>
+        <div className="bg-primary/5 p-3 rounded-lg border border-primary/10 flex items-center gap-3">
+          <Clock className="h-5 w-5 text-primary" />
+          <div className="text-right">
+            <p className="text-[10px] uppercase font-bold text-muted-foreground">System Date</p>
+            <p className="text-sm font-bold">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          </div>
+        </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Bills
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? "-" : stats.totalBills}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Ready-made & Custom</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Left Column: Stats */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="bg-gradient-to-br from-blue-50 to-white dark:from-slate-900 border-blue-100">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-blue-600 flex items-center gap-2">
+                  <ShoppingBag className="h-4 w-4" /> Total Revenue
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                  {isLoading ? "-" : `LKR ${stats.totalRevenue.toLocaleString()}`}
+                </div>
+                <p className="text-xs text-blue-600/70 mt-1">Net bills generated</p>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Inventory Items
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? "-" : stats.totalInventory}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">In Stock</p>
-          </CardContent>
-        </Card>
+            <Card className="bg-gradient-to-br from-amber-50 to-white dark:from-slate-900 border-amber-100">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-amber-600 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" /> Pending Custom Orders
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+                  {isLoading ? "-" : stats.pendingCustom}
+                </div>
+                <p className="text-xs text-amber-600/70 mt-1">Awaiting finalization</p>
+              </CardContent>
+            </Card>
+          </div>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Workshop Orders
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? "-" : stats.worksheetsCount}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Pending & Completed</p>
-          </CardContent>
-        </Card>
+          <Tabs defaultValue="revenue" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="revenue">Revenue</TabsTrigger>
+              <TabsTrigger value="bills">Bills Trend</TabsTrigger>
+            </TabsList>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Revenue
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? "-" : `₹${(stats.totalRevenue / 100000).toFixed(1)}L`}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">YTD</p>
-          </CardContent>
-        </Card>
+            <TabsContent value="revenue" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Revenue Over Time</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart data={[
+                      { name: "Mon", revenue: 45000 },
+                      { name: "Tue", revenue: 52000 },
+                      { name: "Wed", revenue: 38000 },
+                      { name: "Thu", revenue: 65000 },
+                      { name: "Fri", revenue: 42000 },
+                      { name: "Sat", revenue: 89000 },
+                      { name: "Sun", revenue: 15000 },
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                      <YAxis axisLine={false} tickLine={false} />
+                      <Tooltip cursor={{ fill: 'transparent' }} />
+                      <Bar
+                        dataKey="revenue"
+                        fill="#3b82f6"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="bills" className="mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Bills Trend</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={240}>
+                    <LineChart data={[
+                      { name: "Mon", bills: 4 },
+                      { name: "Tue", bills: 6 },
+                      { name: "Wed", bills: 3 },
+                      { name: "Thu", bills: 8 },
+                      { name: "Fri", bills: 5 },
+                      { name: "Sat", bills: 12 },
+                      { name: "Sun", bills: 2 },
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                      <YAxis axisLine={false} tickLine={false} />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="bills" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4, fill: '#f59e0b' }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Right Column: Prices & Quick Info */}
+        <div className="space-y-6">
+          <MetalPriceWidget />
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-2">
+                <Info className="h-3 w-3" /> Quick Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between items-end border-b pb-2">
+                <span className="text-xs text-muted-foreground">Inventory Items</span>
+                <span className="font-bold">{stats.totalInventory}</span>
+              </div>
+              <div className="flex justify-between items-end border-b pb-2">
+                <span className="text-xs text-muted-foreground">Worksheets</span>
+                <span className="font-bold">{stats.worksheetsCount}</span>
+              </div>
+              <div className="flex justify-between items-end">
+                <span className="text-xs text-muted-foreground">Total Bills</span>
+                <span className="font-bold">{stats.totalBills}</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      {/* Charts */}
-      <Tabs defaultValue="revenue" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-          <TabsTrigger value="bills">Bills Trend</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="revenue" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Monthly Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar
-                    dataKey="revenue"
-                    fill="#8884d8"
-                    radius={[8, 8, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="bills" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Bills Generated Trend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="bills" stroke="#82ca9d" />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }

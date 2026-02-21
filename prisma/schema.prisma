@@ -53,12 +53,19 @@ enum BillType {
   ReadyMade
   CustomInitial
   CustomFinal
+  Repair
+  OldGold
 }
 
 enum WastageStatus {
   Excess
   Low
   Ideal
+}
+
+enum ReceiptType {
+  Repair
+  OldGold
 }
 
 model User {
@@ -78,7 +85,8 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  bills Bill[]
+  bills     Bill[]
+  receipts  Receipt[]
 }
 
 model Bill {
@@ -108,6 +116,8 @@ model Bill {
   targetPrice     Float?
   finalWeight     Float?
   finalPrice      Float?
+  weightDifference Float?
+  finalWeightPhoto String? // Mandatory in backend for final bill
   
   items           BillItem[]
   worksheet       WorksheetItem? @relation(fields: [worksheetId], references: [id])
@@ -158,6 +168,65 @@ model Stone {
   updatedAt       DateTime @updatedAt
 }
 
+model Receipt {
+  id              String      @id @default(cuid())
+  receiptNumber   String      @unique
+  receiptType     ReceiptType
+  customerId      String
+  customer        Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  date            DateTime    @default(now())
+  
+  // For Repair items
+  repairItems     RepairItem[]
+  
+  // For Old Gold Valuation
+  oldGoldItems    OldGoldItem[]
+  totalWeight     Float?      // Total weight of all old gold items
+  totalPhoto      String?     // Photo of all items on scale
+  valuationCharge Float       @default(0) // 0 or 500
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model RepairItem {
+  id              String    @id @default(cuid())
+  receiptId       String
+  receipt         Receipt   @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  
+  description     String
+  weight          Float
+  weightPhoto     String?   // Photo on scale
+  damagePhoto     String?   // Photo showing damage
+  repairRemark    String?   // Remark of repair to be done
+  price           Float?    // Manually entered
+  newSize         String?   // For resizing
+  isBroken        Boolean   @default(false)
+  
+  // Replacing stones info
+  structureDamaged Boolean  @default(false)
+  stonesToReplace String?   // Text description or specific counts
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model OldGoldItem {
+  id              String    @id @default(cuid())
+  receiptId       String
+  receipt         Receipt   @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  
+  description     String?
+  weight          Float
+  weightPhoto     String?
+  isBroken        Boolean   @default(false)
+  brokenPhoto     String?
+  specialRemark   String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
 model InventoryItem {
   id              String   @id @default(cuid())
   itemName        String
@@ -169,6 +238,7 @@ model InventoryItem {
   sizeValue       String?
   price           Float
   quantity        Int       @default(1)
+  barcode         String?   @unique // Future plan: barcode
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -176,7 +246,7 @@ model InventoryItem {
 
 model WorksheetItem {
   id              String   @id @default(cuid())
-  bill            Bill?
+  bill            Bill?    
   
   date            DateTime @default(now())
   goldsmithName   String
@@ -191,26 +261,27 @@ model WorksheetItem {
   theoreticalWastage Float
   
   // Manual uploads
-  goldGivenPhoto  String?
-  goldPurityReport String?
-  goldGiven       Float
+  goldGivenPhoto      String?
+  goldPurityReport    String?
+  goldGiven           Float
+  goldGivenPurity     Float   @default(0) // Purity of gold given (e.g. 0.75)
   
   // Stone details
   stoneDetails    StoneWorksheetDetail[]
   
   // Wastage tracking
-  finalWeight     Float?
-  finalWeightPhoto String?
-  finalMetalWeight Float?
-  allowedWastage  Float?
-  goldBalance     Float?
-  goldBalancePhoto String?
-  goldBalancePurity String?
-  purityComment   String?
+  finalWeight         Float?
+  finalWeightPhoto    String?
+  finalMetalWeight    Float?
+  allowedWastage      Float?
+  goldBalance         Float?
+  goldBalancePhoto    String?
+  goldBalancePurity   Float?   // Purity of gold balance
+  purityComment       String?
   purityCorrectedGoldBalance Float?
-  actualWastage   Float?
+  actualWastage       Float?
   differenceInWastage Float?
-  wastageStatus   WastageStatus?
+  wastageStatus       WastageStatus?
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -252,6 +323,15 @@ model WastageRecord {
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model MetalPrice {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @default(now())
+  price24K  Float    // Value for 8g
+  price22K  Float    // Value for 8g
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model UploadedFile {
