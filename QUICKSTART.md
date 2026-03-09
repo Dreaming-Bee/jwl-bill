@@ -63,7 +63,7 @@ Sidebar → Workshop
 
 ### 🧾 Billing
 - Create bills with multiple items
-- Auto-calculated payment charges (3% for card payments ≥₹20K)
+- Auto-calculated payment charges (3% for card payments ≥LKR 20,000)
 - PDF download and printing
 - Customer details auto-filled
 

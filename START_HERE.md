@@ -107,7 +107,7 @@ Then restart: `npm run dev`
 
 ### Auto-Calculations
 - Bill numbers (auto-generated)
-- Payment charges (3% for card ≥₹20K)
+- Payment charges (3% for card ≥LKR 20,000)
 - Wastage tracking
 - Inventory values
 

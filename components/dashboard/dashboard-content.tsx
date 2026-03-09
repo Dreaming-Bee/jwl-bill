@@ -62,7 +62,7 @@ export function DashboardContent() {
   }, []);
 
   return (
-    <div className="p-8 max-w-7xl">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="mb-8 flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold mb-2">Dashboard</h1>

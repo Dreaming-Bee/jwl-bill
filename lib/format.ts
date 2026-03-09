@@ -1,7 +1,7 @@
 // Formatting utilities for the billing system
 
 export function formatCurrency(amount: number): string {
-  return `₹${amount.toLocaleString("en-IN", {
+  return `LKR ${amount.toLocaleString("en-LK", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })}`;
@@ -13,7 +13,7 @@ export function formatWeight(weight: number): string {
 
 export function formatDate(date: Date | string): string {
   const d = new Date(date);
-  return d.toLocaleDateString("en-IN", {
+  return d.toLocaleDateString("en-LK", {
     year: "numeric",
     month: "long",
     day: "numeric",

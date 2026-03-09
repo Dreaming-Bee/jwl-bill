@@ -75,7 +75,7 @@ export function ReadyMadeBillingContent() {
   };
 
   return (
-    <div className="p-8 max-w-7xl">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Ready-Made Billing</h1>
@@ -165,7 +165,7 @@ export function ReadyMadeBillingContent() {
                         </td>
                         <td className="py-3 px-4">{bill.items.length}</td>
                         <td className="py-3 px-4 text-right font-semibold">
-                          ₹{totalAmount.toLocaleString()}
+                          LKR {totalAmount.toLocaleString()}
                         </td>
                         <td className="py-3 px-4 text-center">
                           <div className="flex justify-center gap-2">
@@ -177,16 +177,16 @@ export function ReadyMadeBillingContent() {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
                               size="sm"
                               onClick={() => handlePDFExport(bill)}
                               title="Download PDF"
                             >
                               <Download className="h-4 w-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
                               size="sm"
                               onClick={() => handlePrint(bill)}
                               title="Print bill"

@@ -14,7 +14,7 @@ interface InventoryItem {
   karatage: string;
   weight: number;
   size: string;
-  sizeValue: string;
+  sizeValue: string | null;
   price: number;
   quantity: number;
 }
@@ -42,7 +42,7 @@ export function InventoryContent() {
   const lowStockItems = items.filter((item) => item.quantity < 2);
 
   return (
-    <div className="p-8 max-w-7xl">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Inventory Management</h1>
@@ -92,7 +92,7 @@ export function InventoryContent() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ₹{(totalValue / 100000).toFixed(1)}L
+              LKR {(totalValue / 100000).toFixed(1)}L
             </div>
             <p className="text-xs text-muted-foreground mt-1">Total worth</p>
           </CardContent>
@@ -171,7 +171,7 @@ export function InventoryContent() {
                         {item.sizeValue} {item.size !== "Ring" && '\"'}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        ₹{item.price.toLocaleString()}
+                        LKR {item.price.toLocaleString()}
                       </td>
                       <td
                         className={cn(
@@ -184,7 +184,7 @@ export function InventoryContent() {
                         {item.quantity}
                       </td>
                       <td className="py-3 px-4 text-right font-semibold">
-                        ₹{(item.price * item.quantity).toLocaleString()}
+                        LKR {(item.price * item.quantity).toLocaleString()}
                       </td>
                     </tr>
                   ))}

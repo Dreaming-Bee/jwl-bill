@@ -25,7 +25,7 @@ A **production-ready, fully-functional** jewelry shop digital billing and worksh
 - ✅ **Tailwind CSS** - Complete styling system
 
 ### Business Features
-- ✅ **Payment Rules** - Auto-charge calculation (3% for cards ≥₹20K)
+- ✅ **Payment Rules** - Auto-charge calculation (3% for cards ≥LKR 20,000)
 - ✅ **Wastage Calculator** - Complete implementation with all formulas
 - ✅ **Inventory Auto-Update** - Decrements after bill creation
 - ✅ **PDF Export** - Professional invoice generation
@@ -101,8 +101,8 @@ Visit: **http://localhost:3000** ✅
 - ✅ Custom order quotes
 - ✅ Final invoices with price adjustment
 - ✅ Payment type selection (Cash, Card, Koko)
-- ✅ Automatic 3% charge for card payments ≥₹20K
-- ✅ Koko restricted to silver <₹20K
+- ✅ Automatic 3% charge for card payments ≥LKR 20,000
+- ✅ Koko restricted to silver <LKR 20,000
 
 ### Inventory
 - ✅ Real-time tracking
@@ -205,7 +205,7 @@ Visit: **http://localhost:3000** ✅
 
 ### Payment Calculation
 ```
-if Card Payment AND Amount ≥ ₹20,000:
+if Card Payment AND Amount ≥ LKR 20,000:
     Final Amount = Amount × 1.03 (add 3%)
 Balance = Final Amount - Old Gold Value
 ```

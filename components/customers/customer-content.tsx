@@ -13,7 +13,7 @@ interface Customer {
   id: string;
   name: string;
   phone: string;
-  city: string;
+  city?: string;
   address?: string;
 }
 
@@ -35,7 +35,7 @@ export function CustomerContent() {
   const loadCustomers = async () => {
     try {
       const data = await getCustomers();
-      setCustomers(data);
+      setCustomers(data as any);
     } catch (error) {
       console.error("Error loading customers:", error);
     } finally {
@@ -71,7 +71,7 @@ export function CustomerContent() {
   };
 
   return (
-    <div className="p-8 max-w-7xl">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Customer Management</h1>

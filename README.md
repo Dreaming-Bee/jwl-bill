@@ -128,8 +128,8 @@ Automated calculation of theoretical, allowed, and actual wastage based on metal
 - Wastage status (Ideal, Low, Excess)
 
 ### Payment Rules
-- **Koko**: Only for silver jewelry below ₹20,000
-- **Card**: No charge below ₹20,000; 3% bank charge above ₹20,000
+- **Koko**: Only for silver jewelry below LKR 20,000
+- **Card**: No charge below LKR 20,000; 3% bank charge above LKR 20,000
 - **Cash**: No additional charges
 
 ### Inventory Auto-Update

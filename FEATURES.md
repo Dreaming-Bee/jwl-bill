@@ -26,9 +26,9 @@
 - **Stone Data**: Background tracking (not shown on invoice)
 - **Payment Rules**:
   - Cash: No charges
-  - Card <₹20K: No charges
-  - Card ≥₹20K: +3% bank charges automatically added
-  - Koko: Only for Silver jewelry <₹20K
+  - Card <LKR 20,000: No charges
+  - Card ≥LKR 20,000: +3% bank charges automatically added
+  - Koko: Only for Silver jewelry <LKR 20,000
 
 ### Bill Management
 - **View**: Click eye icon to preview bill
@@ -195,13 +195,13 @@ For each custom order, track:
 #### Card
 - Digital card payments
 - Processing fees:
-  - Below ₹20,000: 0% charge
-  - ₹20,000 and above: 3% bank charge
+  - Below LKR 20,000: 0% charge
+  - LKR 20,000 and above: 3% bank charge
 - Charges automatically added to bill
 
 #### Koko
 - Special payment plan
-- **Restrictions**: Only for Silver jewelry below ₹20,000
+- **Restrictions**: Only for Silver jewelry below LKR 20,000
 - System prevents use outside these parameters
 
 ### Bill Amount Calculation
@@ -209,7 +209,7 @@ For each custom order, track:
 Base Amount = Sum of all item prices
 Old Gold Value = Deduction from balance
 
-If Payment = Card AND Amount ≥ ₹20,000:
+If Payment = Card AND Amount ≥ LKR 20,000:
   Final Amount = Base Amount × 1.03 (add 3%)
 
 Balance Due = Final Amount - Old Gold Value

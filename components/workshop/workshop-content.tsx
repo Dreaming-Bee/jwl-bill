@@ -83,7 +83,7 @@ export function WorkshopContent() {
 
   if (selectedWsId) {
     return (
-      <div className="p-8 max-w-4xl mx-auto">
+      <div className="p-4 md:p-8 max-w-4xl mx-auto">
         <Button
           variant="ghost"
           onClick={() => setSelectedWsId(null)}
@@ -108,7 +108,7 @@ export function WorkshopContent() {
   }
 
   return (
-    <div className="p-8 max-w-7xl">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold mb-2">Workshop Management</h1>

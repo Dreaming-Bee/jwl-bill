@@ -91,7 +91,7 @@ READY-MADE BILLING:
   ✅ Multi-item bills
   ✅ Auto-generated bill numbers
   ✅ 4 payment types (Cash, Card, Koko)
-  ✅ Automatic 3% charge for card ≥₹20K
+  ✅ Automatic 3% charge for card ≥LKR 20,000
   ✅ PDF export
   ✅ Printing support
   ✅ Customer information auto-fill
@@ -180,15 +180,15 @@ CASH:
   No charges
 
 CARD:
-  If Amount < ₹20,000:
+  If Amount < LKR 20,000:
     Amount = Item prices
     No charges
   
-  If Amount ≥ ₹20,000:
+  If Amount ≥ LKR 20,000:
     Amount = Item prices × 1.03 (add 3% bank charge)
     
 KOKO (Special):
-  Only for Silver jewelry < ₹20,000
+  Only for Silver jewelry < LKR 20,000
   System prevents use outside these parameters
 
 FINAL BALANCE:

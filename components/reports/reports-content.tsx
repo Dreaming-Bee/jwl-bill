@@ -105,7 +105,7 @@ export function ReportsContent() {
   }, []);
 
   return (
-    <div className="p-8 max-w-7xl">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Reports & Analytics</h1>
@@ -129,7 +129,7 @@ export function ReportsContent() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "-" : `₹${(stats.totalRevenue / 100000).toFixed(2)}L`}
+              {isLoading ? "-" : `LKR ${(stats.totalRevenue / 100000).toFixed(2)}L`}
             </div>
             <p className="text-xs text-muted-foreground mt-1">YTD</p>
           </CardContent>
@@ -157,7 +157,7 @@ export function ReportsContent() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? "-" : `₹${(stats.averageOrderValue / 1000).toFixed(1)}K`}
+              {isLoading ? "-" : `LKR ${(stats.averageOrderValue / 1000).toFixed(1)}K`}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Per transaction</p>
           </CardContent>
@@ -201,7 +201,7 @@ export function ReportsContent() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                  <Tooltip formatter={(value) => `LKR ${value.toLocaleString()}`} />
                   <Legend />
                   <Bar dataKey="revenue" fill="#8884d8" name="Revenue" />
                 </BarChart>
@@ -320,7 +320,7 @@ export function ReportsContent() {
                     Total Revenue
                   </span>
                   <span className="font-semibold">
-                    ₹{(stats.totalRevenue / 100000).toFixed(2)}L
+                    LKR {(stats.totalRevenue / 100000).toFixed(2)}L
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -328,7 +328,7 @@ export function ReportsContent() {
                     Avg Monthly
                   </span>
                   <span className="font-semibold">
-                    ₹{((stats.totalRevenue / 6) / 100000).toFixed(2)}L
+                    LKR {((stats.totalRevenue / 6) / 100000).toFixed(2)}L
                   </span>
                 </div>
                 <div className="flex justify-between items-center">

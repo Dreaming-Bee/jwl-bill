@@ -43,9 +43,9 @@ A **production-ready, fully-functional** jewelry shop digital billing and worksh
 - **Auto-Generated**: Bill numbers and dates
 - **Payment Rules**: 
   - Cash: No charges
-  - Card <₹20K: No charges
-  - Card ≥₹20K: +3% bank charges
-  - Koko: Silver only, <₹20K
+  - Card <LKR 20,000: No charges
+  - Card ≥LKR 20,000: +3% bank charges
+  - Koko: Silver only, <LKR 20,000
 - **PDF Export**: Download professional invoices
 - **Print Support**: Direct browser printing
 - **Customer Management**: Auto-filled from database
@@ -163,7 +163,7 @@ UploadedFile - File management
 
 ### Payment Calculations
 ```
-if paymentType == "Card" && amount >= 20000:
+if paymentType == "Card" && amount >= LKR 20000:
     finalAmount = amount * 1.03  // Add 3%
 balance = finalAmount - oldGoldValue
 ```

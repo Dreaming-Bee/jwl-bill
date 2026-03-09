@@ -57,7 +57,7 @@ export function CustomBillingContent() {
   const finalBills = bills.filter((b) => b.billType === "CustomFinal");
 
   return (
-    <div className="p-8 max-w-7xl">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Custom Orders</h1>

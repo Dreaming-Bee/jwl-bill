@@ -556,7 +556,8 @@ export async function addCustomer(customerData: any) {
         name: customerData.name,
         phone: customerData.phone || "",
         address: customerData.address || "",
-      },
+        city: customerData.city || "",
+      } as any,
     });
   } catch (error) {
     console.error("Error adding customer:", error);
@@ -583,7 +584,8 @@ export async function updateCustomer(customerId: string, customerData: any) {
         name: customerData.name,
         phone: customerData.phone,
         address: customerData.address,
-      },
+        city: customerData.city,
+      } as any,
     });
   } catch (error) {
     console.error("Error updating customer:", error);

@@ -117,7 +117,7 @@
     • Create ready-made bills with multiple items
     • Auto-generated bill numbers (LJ-YYYYMMDD-XXXX)
     • Support for 3 payment types (Cash, Card, Koko)
-    • Automatic 3% bank charge for card ≥₹20,000
+    • Automatic 3% bank charge for card ≥LKR 20,000
     • PDF download and printing
     • Old gold deduction tracking
     • Customer information auto-fill
@@ -159,9 +159,9 @@
 
   PAYMENT RULES:
     • Cash: No charges
-    • Card <₹20K: No charges
-    • Card ≥₹20K: +3% bank charge (automatic)
-    • Koko: Only for silver <₹20K (restricted)
+    • Card <LKR 20,000: No charges
+    • Card ≥LKR 20,000: +3% bank charge (automatic)
+    • Koko: Only for silver <LKR 20,000 (restricted)
 
   SAMPLE DATA:
     Customers: Rajesh Kumar, Priya Sharma, Arjun Patel
