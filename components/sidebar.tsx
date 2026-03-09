@@ -69,7 +69,7 @@ const MENU_ITEMS = [
 ];
 
 export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
 
@@ -79,15 +79,21 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile Toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed left-4 top-4 z-[60] lg:hidden"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </Button>
+      {/* Mobile Header Bar */}
+      <div className="fixed top-0 left-0 right-0 h-16 bg-sidebar border-b border-sidebar-border z-40 flex items-center px-4 lg:hidden">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="mr-3"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
+        <div className="flex flex-col">
+          <span className="font-bold text-sm">Lakshika</span>
+          <span className="text-[10px] text-muted-foreground uppercase">Jewellers</span>
+        </div>
+      </div>
 
       {/* Sidebar */}
       <aside
